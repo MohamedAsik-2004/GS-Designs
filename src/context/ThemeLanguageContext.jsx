@@ -100,22 +100,22 @@ export const ThemeLanguageProvider = ({ children }) => {
 
   const [cmsSections, setCmsSections] = useState(() => loadFromStorage('gs_cms_sections', DEFAULT_CMS_SECTIONS));
 
-  // Auto-Save effects for local storage persistence
-  useEffect(() => { saveToStorage('gs_admin_quotes', adminQuotes); }, [adminQuotes]);
-  useEffect(() => { saveToStorage('gs_admin_messages', adminMessages); }, [adminMessages]);
-  useEffect(() => { saveToStorage('gs_admin_services', adminServices); }, [adminServices]);
-  useEffect(() => { saveToStorage('gs_admin_portfolio', adminPortfolio); }, [adminPortfolio]);
-  useEffect(() => { saveToStorage('gs_admin_blog', adminBlog); }, [adminBlog]);
-  useEffect(() => { saveToStorage('gs_admin_gallery', adminGallery); }, [adminGallery]);
-  useEffect(() => { saveToStorage('gs_admin_careers', adminCareers); }, [adminCareers]);
-  useEffect(() => { saveToStorage('gs_admin_timeline', adminTimeline); }, [adminTimeline]);
-  useEffect(() => { saveToStorage('gs_admin_team', adminTeam); }, [adminTeam]);
-  useEffect(() => { saveToStorage('gs_dashboard_cleared', dashboardCleared); }, [dashboardCleared]);
-  useEffect(() => { saveToStorage('gs_cms_hero', cmsHero); }, [cmsHero]);
-  useEffect(() => { saveToStorage('gs_cms_story', cmsStory); }, [cmsStory]);
-  useEffect(() => { saveToStorage('gs_cms_seo', cmsSeo); }, [cmsSeo]);
-  useEffect(() => { saveToStorage('gs_cms_brand', cmsBrand); }, [cmsBrand]);
-  useEffect(() => { saveToStorage('gs_cms_sections', cmsSections); }, [cmsSections]);
+  // Auto-Save effects for local storage & Firebase cloud database persistence
+  useEffect(() => { saveToStorage('gs_admin_quotes', adminQuotes); syncToFirebase('gs_admin_quotes', adminQuotes); }, [adminQuotes]);
+  useEffect(() => { saveToStorage('gs_admin_messages', adminMessages); syncToFirebase('gs_admin_messages', adminMessages); }, [adminMessages]);
+  useEffect(() => { saveToStorage('gs_admin_services', adminServices); syncToFirebase('gs_admin_services', adminServices); }, [adminServices]);
+  useEffect(() => { saveToStorage('gs_admin_portfolio', adminPortfolio); syncToFirebase('gs_admin_portfolio', adminPortfolio); }, [adminPortfolio]);
+  useEffect(() => { saveToStorage('gs_admin_blog', adminBlog); syncToFirebase('gs_admin_blog', adminBlog); }, [adminBlog]);
+  useEffect(() => { saveToStorage('gs_admin_gallery', adminGallery); syncToFirebase('gs_admin_gallery', adminGallery); }, [adminGallery]);
+  useEffect(() => { saveToStorage('gs_admin_careers', adminCareers); syncToFirebase('gs_admin_careers', adminCareers); }, [adminCareers]);
+  useEffect(() => { saveToStorage('gs_admin_timeline', adminTimeline); syncToFirebase('gs_admin_timeline', adminTimeline); }, [adminTimeline]);
+  useEffect(() => { saveToStorage('gs_admin_team', adminTeam); syncToFirebase('gs_admin_team', adminTeam); }, [adminTeam]);
+  useEffect(() => { saveToStorage('gs_dashboard_cleared', dashboardCleared); syncToFirebase('gs_dashboard_cleared', dashboardCleared); }, [dashboardCleared]);
+  useEffect(() => { saveToStorage('gs_cms_hero', cmsHero); syncToFirebase('gs_cms_hero', cmsHero); }, [cmsHero]);
+  useEffect(() => { saveToStorage('gs_cms_story', cmsStory); syncToFirebase('gs_cms_story', cmsStory); }, [cmsStory]);
+  useEffect(() => { saveToStorage('gs_cms_seo', cmsSeo); syncToFirebase('gs_cms_seo', cmsSeo); }, [cmsSeo]);
+  useEffect(() => { saveToStorage('gs_cms_brand', cmsBrand); syncToFirebase('gs_cms_brand', cmsBrand); }, [cmsBrand]);
+  useEffect(() => { saveToStorage('gs_cms_sections', cmsSections); syncToFirebase('gs_cms_sections', cmsSections); }, [cmsSections]);
 
   // Real-time Cross-Tab & Cloud Synchronization Engine
   const notifyCrossTabSync = (storageKey, valueToSave) => {
@@ -133,29 +133,29 @@ export const ThemeLanguageProvider = ({ children }) => {
   // Subscribe to Firebase Realtime Database updates for live multi-device persistence
   useEffect(() => {
     const keys = [
-      { key: 'gs_admin_quotes', setter: setAdminQuotes },
-      { key: 'gs_admin_messages', setter: setAdminMessages },
-      { key: 'gs_admin_services', setter: setAdminServices },
-      { key: 'gs_admin_portfolio', setter: setAdminPortfolio },
-      { key: 'gs_admin_blog', setter: setAdminBlog },
-      { key: 'gs_admin_gallery', setter: setAdminGallery },
-      { key: 'gs_admin_careers', setter: setAdminCareers },
-      { key: 'gs_admin_timeline', setter: setAdminTimeline },
-      { key: 'gs_admin_team', setter: setAdminTeam },
-      { key: 'gs_cms_hero', setter: setCmsHero },
-      { key: 'gs_cms_story', setter: setCmsStory },
-      { key: 'gs_cms_seo', setter: setCmsSeo },
-      { key: 'gs_cms_brand', setter: setCmsBrand },
-      { key: 'gs_cms_sections', setter: setCmsSections }
+      { key: 'gs_admin_quotes', setter: setAdminQuotes, initial: adminQuotes },
+      { key: 'gs_admin_messages', setter: setAdminMessages, initial: adminMessages },
+      { key: 'gs_admin_services', setter: setAdminServices, initial: adminServices },
+      { key: 'gs_admin_portfolio', setter: setAdminPortfolio, initial: adminPortfolio },
+      { key: 'gs_admin_blog', setter: setAdminBlog, initial: adminBlog },
+      { key: 'gs_admin_gallery', setter: setAdminGallery, initial: adminGallery },
+      { key: 'gs_admin_careers', setter: setAdminCareers, initial: adminCareers },
+      { key: 'gs_admin_timeline', setter: setAdminTimeline, initial: adminTimeline },
+      { key: 'gs_admin_team', setter: setAdminTeam, initial: adminTeam },
+      { key: 'gs_cms_hero', setter: setCmsHero, initial: cmsHero },
+      { key: 'gs_cms_story', setter: setCmsStory, initial: cmsStory },
+      { key: 'gs_cms_seo', setter: setCmsSeo, initial: cmsSeo },
+      { key: 'gs_cms_brand', setter: setCmsBrand, initial: cmsBrand },
+      { key: 'gs_cms_sections', setter: setCmsSections, initial: cmsSections }
     ];
 
-    const unsubscribes = keys.map(({ key, setter }) => {
+    const unsubscribes = keys.map(({ key, setter, initial }) => {
       return subscribeToFirebase(key, (val) => {
         if (val !== undefined && val !== null) {
           setter(val);
           saveToStorage(key, val);
         }
-      });
+      }, initial);
     });
 
     const reloadStoredState = () => {
