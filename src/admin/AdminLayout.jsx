@@ -40,7 +40,6 @@ const AdminLayout = () => {
     { id: 'dashboard', label: 'Dashboard Overview', icon: LayoutDashboard },
     { id: 'website', label: 'Website CMS & SEO', icon: Globe },
     { id: 'portfolio', label: 'Portfolio Manager', icon: Briefcase },
-    { id: 'gallery', label: 'Gallery & Albums', icon: Image },
     { id: 'quotes', label: 'Quote Requests', icon: FileText, badge: adminQuotes.length },
     { id: 'messages', label: 'Messages Inbox', icon: MessageSquare, badge: adminMessages.filter(m => !m.read).length },
     { id: 'settings', label: 'Settings & Security', icon: Settings }
@@ -210,7 +209,6 @@ const AdminLayout = () => {
         {activeAdminTab === 'dashboard' && <DashboardView setActiveAdminTab={setActiveAdminTab} />}
         {activeAdminTab === 'website' && <WebsiteManagerView />}
         {activeAdminTab === 'portfolio' && <PortfolioManagerView />}
-        {activeAdminTab === 'gallery' && <GalleryManagerView />}
         {activeAdminTab === 'quotes' && <QuotesManagerView />}
         {activeAdminTab === 'messages' && <MessagesInboxView />}
         {activeAdminTab === 'settings' && <SettingsView />}

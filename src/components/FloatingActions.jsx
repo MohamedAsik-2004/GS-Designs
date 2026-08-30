@@ -4,15 +4,18 @@ import { BRAND_INFO } from '../data/agencyData';
 import { Phone, MessageCircle, MessageSquare } from 'lucide-react';
 
 const FloatingActions = () => {
-  const { setLiveChatOpen } = useThemeLanguage();
+  const { setLiveChatOpen, cmsBrand } = useThemeLanguage();
+
+  const phoneNum = cmsBrand?.phone || BRAND_INFO.phone;
+  const whatsappNum = cmsBrand?.whatsapp || BRAND_INFO.whatsapp;
 
   const handleWhatsApp = () => {
     const message = encodeURIComponent("Hello GS Designs! I would like to inquire about your advertising & printing services.");
-    window.open(`https://wa.me/${BRAND_INFO.whatsapp}?text=${message}`, '_blank');
+    window.open(`https://wa.me/${whatsappNum}?text=${message}`, '_blank');
   };
 
   const handleCall = () => {
-    window.open(`tel:${BRAND_INFO.phone}`);
+    window.open(`tel:${phoneNum}`);
   };
 
   return (
@@ -78,6 +81,7 @@ const FloatingActions = () => {
       <button
         onClick={handleWhatsApp}
         title="Chat on WhatsApp"
+        className="fab-pulse-ring"
         style={{
           width: '56px',
           height: '56px',

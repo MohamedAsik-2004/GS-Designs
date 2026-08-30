@@ -20,7 +20,6 @@ import AboutPage from './pages/AboutPage';
 import ServicesPage from './pages/ServicesPage';
 import PortfolioPage from './pages/PortfolioPage';
 import GalleryPage from './pages/GalleryPage';
-import PricingPage from './pages/PricingPage';
 import BlogPage from './pages/BlogPage';
 import CareersPage from './pages/CareersPage';
 import FaqPage from './pages/FaqPage';
@@ -42,7 +41,7 @@ const MainContent = () => {
 
       if (path === '/admin' || path === '/admin/' || hash === 'admin' || search.includes('admin')) {
         setActivePage('admin');
-      } else if (hash && ['home', 'about', 'services', 'portfolio', 'gallery', 'pricing', 'blog', 'careers', 'faq', 'contact'].includes(hash)) {
+      } else if (hash && ['home', 'about', 'services', 'portfolio', 'careers', 'faq', 'contact'].includes(hash)) {
         setActivePage(hash);
       }
     };
@@ -69,9 +68,6 @@ const MainContent = () => {
         {activePage === 'about' && <AboutPage />}
         {activePage === 'services' && <ServicesPage />}
         {activePage === 'portfolio' && <PortfolioPage />}
-        {activePage === 'gallery' && <GalleryPage />}
-        {activePage === 'pricing' && <PricingPage />}
-        {activePage === 'blog' && <BlogPage />}
         {activePage === 'careers' && <CareersPage />}
         {activePage === 'faq' && <FaqPage />}
         {activePage === 'contact' && <ContactPage />}

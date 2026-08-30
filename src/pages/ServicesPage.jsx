@@ -77,7 +77,7 @@ const ServicesPage = () => {
             <div key={srv.id} className="glass-card" style={{ overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
               <div style={{ height: '200px', overflow: 'hidden', position: 'relative' }}>
                 <img
-                  src={srv.image}
+                  src={srv.image || "https://images.unsplash.com/photo-1626785774573-4b799315345d?auto=format&fit=crop&w=800&q=80"}
                   alt={srv.title}
                   style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.5s ease' }}
                   onMouseEnter={e => e.target.style.transform = 'scale(1.08)'}
@@ -112,12 +112,7 @@ const ServicesPage = () => {
                   </ul>
                 </div>
 
-                <div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', borderTop: '1px solid var(--border-color)', paddingTop: '0.85rem' }}>
-                    <span style={{ fontSize: '0.8rem', color: 'var(--text-dim)' }}>Starting From</span>
-                    <strong style={{ fontSize: '1.15rem', color: 'var(--color-primary-red)' }}>{srv.startingPrice}</strong>
-                  </div>
-
+                <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '0.85rem' }}>
                   <div style={{ display: 'flex', gap: '8px' }}>
                     <button
                       onClick={() => openServiceModal(srv)}

@@ -81,29 +81,16 @@ const ServiceDetailModal = () => {
             {serviceModalItem.description}
           </p>
 
-          <div className="grid-2" style={{ marginBottom: '2rem' }}>
-            <div style={{
-              background: 'rgba(255, 255, 255, 0.03)',
-              padding: '1.25rem',
-              borderRadius: 'var(--radius-md)',
-              border: '1px solid var(--border-color)'
-            }}>
-              <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Starting Price</span>
-              <div style={{ fontSize: '1.5rem', fontWeight: '800', color: 'var(--color-emerald)', marginTop: '4px' }}>
-                {serviceModalItem.startingPrice}
-              </div>
-            </div>
-
-            <div style={{
-              background: 'rgba(255, 255, 255, 0.03)',
-              padding: '1.25rem',
-              borderRadius: 'var(--radius-md)',
-              border: '1px solid var(--border-color)'
-            }}>
-              <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Expected Turnaround</span>
-              <div style={{ fontSize: '1.1rem', fontWeight: '700', color: 'var(--text-main)', marginTop: '6px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <Clock size={18} style={{ color: 'var(--color-primary-red)' }} /> 24 - 48 Hours Express
-              </div>
+          <div style={{
+            background: 'rgba(255, 255, 255, 0.03)',
+            padding: '1.25rem',
+            borderRadius: 'var(--radius-md)',
+            border: '1px solid var(--border-color)',
+            marginBottom: '2rem'
+          }}>
+            <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Expected Turnaround</span>
+            <div style={{ fontSize: '1.1rem', fontWeight: '700', color: 'var(--text-main)', marginTop: '6px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <Clock size={18} style={{ color: 'var(--color-primary-red)' }} /> {serviceModalItem.turnaround || '24 - 48 Hours Express'}
             </div>
           </div>
 

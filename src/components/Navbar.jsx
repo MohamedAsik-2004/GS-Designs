@@ -33,15 +33,12 @@ const Navbar = () => {
     { id: 'home', label: 'Home' },
     { id: 'services', label: 'Services', badge: '18' },
     { id: 'portfolio', label: 'Portfolio' },
-    { id: 'pricing', label: 'Pricing' },
     { id: 'about', label: 'About' },
     { id: 'contact', label: 'Contact' }
   ];
 
   // Secondary navigation links inside "More" dropdown
   const secondaryLinks = [
-    { id: 'gallery', label: 'Gallery Showcase' },
-    { id: 'blog', label: 'Agency Insights & Blog' },
     { id: 'careers', label: 'Careers (Join Us)' },
     { id: 'faq', label: 'FAQ & Guarantees' }
   ];

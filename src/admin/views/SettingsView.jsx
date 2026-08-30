@@ -1,11 +1,15 @@
 import React, { useState } from 'react';
+import { useThemeLanguage } from '../../context/ThemeLanguageContext';
 import { BRAND_INFO } from '../../data/agencyData';
 import { Save, ShieldCheck, Mail, Phone, Lock, Key, Check } from 'lucide-react';
 
 const SettingsView = () => {
-  const [phone, setPhone] = useState(BRAND_INFO.phone);
-  const [email, setEmail] = useState(BRAND_INFO.email);
-  const [whatsapp, setWhatsapp] = useState(BRAND_INFO.whatsapp);
+  const { cmsBrand, setCmsBrand } = useThemeLanguage();
+
+  const [phone, setPhone] = useState(cmsBrand?.phone || BRAND_INFO.phone);
+  const [email, setEmail] = useState(cmsBrand?.email || BRAND_INFO.email);
+  const [whatsapp, setWhatsapp] = useState(cmsBrand?.whatsapp || BRAND_INFO.whatsapp);
+  const [address, setAddress] = useState(cmsBrand?.address || BRAND_INFO.address);
   const [twoFactor, setTwoFactor] = useState(true);
   const [captcha, setCaptcha] = useState(true);
   const [rateLimit, setRateLimit] = useState(true);
@@ -13,6 +17,13 @@ const SettingsView = () => {
 
   const handleSave = (e) => {
     e.preventDefault();
+    setCmsBrand(prev => ({
+      ...prev,
+      phone,
+      email,
+      whatsapp,
+      address
+    }));
     setSaved(true);
     setTimeout(() => setSaved(false), 3000);
   };

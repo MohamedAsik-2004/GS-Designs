@@ -4,7 +4,8 @@ import { CAREER_OPENINGS } from '../data/agencyData';
 import { Briefcase, MapPin, Clock, ArrowRight, Sparkles } from 'lucide-react';
 
 const CareersPage = () => {
-  const { openResumeModal } = useThemeLanguage();
+  const { openResumeModal, adminCareers } = useThemeLanguage();
+  const jobs = adminCareers || CAREER_OPENINGS;
 
   return (
     <div style={{ padding: '4rem 0' }}>
@@ -22,7 +23,7 @@ const CareersPage = () => {
 
         {/* Job Listings */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', maxWidth: '850px', margin: '0 auto' }}>
-          {CAREER_OPENINGS.map(job => (
+          {jobs.map(job => (
             <div key={job.id} className="glass-card" style={{ padding: '2rem' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem', marginBottom: '1rem' }}>
                 <div>

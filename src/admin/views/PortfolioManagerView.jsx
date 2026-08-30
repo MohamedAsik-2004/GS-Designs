@@ -1,9 +1,50 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useThemeLanguage } from '../../context/ThemeLanguageContext';
-import { Plus, Trash2, Edit, Star, Image, X, Search } from 'lucide-react';
+import { Plus, Trash2, Edit, Star, Image, X, Search, Upload } from 'lucide-react';
+
+const processImageUpload = (file, callback) => {
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (event) => {
+    const dataUrl = event.target.result;
+    const img = new window.Image();
+    img.onload = () => {
+      try {
+        const canvas = document.createElement('canvas');
+        const MAX_WIDTH = 400;
+        const MAX_HEIGHT = 400;
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > MAX_WIDTH) {
+            height *= MAX_WIDTH / width;
+            width = MAX_WIDTH;
+          }
+        } else {
+          if (height > MAX_HEIGHT) {
+            width *= MAX_HEIGHT / height;
+            height = MAX_HEIGHT;
+          }
+        }
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+        const compressed = canvas.toDataURL('image/jpeg', 0.85);
+        callback(compressed);
+      } catch (err) {
+        callback(dataUrl);
+      }
+    };
+    img.onerror = () => callback(dataUrl);
+    img.src = dataUrl;
+  };
+  reader.readAsDataURL(file);
+};
 
 const PortfolioManagerView = () => {
-  const { adminPortfolio, setAdminPortfolio } = useThemeLanguage();
+  const { adminPortfolio, setAdminPortfolio, notifyCrossTabSync } = useThemeLanguage();
 
   const [modalOpen, setModalOpen] = useState(false);
   const [editingId, setEditingId] = useState(null);
@@ -15,6 +56,12 @@ const PortfolioManagerView = () => {
   const [year, setYear] = useState('2026');
   const [image, setImage] = useState('');
   const [desc, setDesc] = useState('');
+
+  const handleFileUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    processImageUpload(file, setImage);
+  };
 
   const openAddModal = () => {
     setEditingId(null);
@@ -41,9 +88,10 @@ const PortfolioManagerView = () => {
   const handleSaveProject = (e) => {
     e.preventDefault();
 
+    let updatedPortfolio;
     if (editingId) {
       // Update Existing
-      setAdminPortfolio(prev => prev.map(p => p.id === editingId ? {
+      updatedPortfolio = adminPortfolio.map(p => p.id === editingId ? {
         ...p,
         title,
         category,
@@ -52,7 +100,7 @@ const PortfolioManagerView = () => {
         year,
         image: image || "https://images.unsplash.com/photo-1626785774573-4b799315345d?auto=format&fit=crop&w=1000&q=80",
         description: desc || p.description
-      } : p));
+      } : p);
     } else {
       // Add New
       const newProj = {
@@ -67,20 +115,26 @@ const PortfolioManagerView = () => {
         tags: [category, "2026", "GS Designs"],
         featured: false
       };
-      setAdminPortfolio(prev => [newProj, ...prev]);
+      updatedPortfolio = [newProj, ...adminPortfolio];
     }
 
+    setAdminPortfolio(updatedPortfolio);
+    notifyCrossTabSync('gs_admin_portfolio', updatedPortfolio);
     setModalOpen(false);
   };
 
   const handleDelete = (id) => {
     if (window.confirm("Are you sure you want to delete this project item?")) {
-      setAdminPortfolio(prev => prev.filter(p => p.id !== id));
+      const updatedPortfolio = adminPortfolio.filter(p => p.id !== id);
+      setAdminPortfolio(updatedPortfolio);
+      notifyCrossTabSync('gs_admin_portfolio', updatedPortfolio);
     }
   };
 
   const toggleFeatured = (id) => {
-    setAdminPortfolio(prev => prev.map(p => p.id === id ? { ...p, featured: !p.featured } : p));
+    const updatedPortfolio = adminPortfolio.map(p => p.id === id ? { ...p, featured: !p.featured } : p);
+    setAdminPortfolio(updatedPortfolio);
+    notifyCrossTabSync('gs_admin_portfolio', updatedPortfolio);
   };
 
   const filteredProjects = adminPortfolio.filter(p =>
@@ -203,8 +257,44 @@ const PortfolioManagerView = () => {
               </div>
 
               <div className="form-group">
-                <label className="form-label">Image URL</label>
-                <input type="url" value={image} onChange={e => setImage(e.target.value)} className="form-input" placeholder="https://images.unsplash.com/..." />
+                <label className="form-label">Project Image (Upload File or Enter URL)</label>
+                {image && (
+                  <div style={{ position: 'relative', marginBottom: '10px', width: '100%', height: '140px', borderRadius: '8px', overflow: 'hidden', border: '1px solid var(--border-color)' }}>
+                    <img src={image} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    <button
+                      type="button"
+                      onClick={() => setImage('')}
+                      style={{ position: 'absolute', top: '8px', right: '8px', background: 'rgba(239, 68, 68, 0.85)', color: '#fff', border: 'none', borderRadius: '50%', width: '28px', height: '28px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                      title="Remove Image"
+                    >
+                      <X size={16} />
+                    </button>
+                  </div>
+                )}
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <label
+                    className="btn-secondary"
+                    style={{ flex: 1, justifyContent: 'center', cursor: 'pointer', margin: 0, display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+                  >
+                    <Upload size={16} />
+                    <span>Upload Image File</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFileUpload}
+                      onClick={(e) => { e.target.value = null; }}
+                      style={{ display: 'none' }}
+                    />
+                  </label>
+                </div>
+                <input
+                  type="text"
+                  value={image}
+                  onChange={e => setImage(e.target.value)}
+                  className="form-input"
+                  style={{ marginTop: '8px', fontSize: '0.85rem' }}
+                  placeholder="Or paste image URL (https://...)"
+                />
               </div>
 
               <div className="form-group">

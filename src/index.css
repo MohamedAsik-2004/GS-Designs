@@ -479,3 +479,97 @@ main {
 @keyframes shimmerText {
   to { background-position: 200% center; }
 }
+
+/* --- ANIMATION ENGINE & MARQUEE TICKER EXTENSIONS --- */
+
+@keyframes fadeUpKeyframe {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-up-1 {
+  animation: fadeUpKeyframe 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.fade-up-2 {
+  animation: fadeUpKeyframe 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.15s forwards;
+  opacity: 0;
+}
+
+.fade-up-3 {
+  animation: fadeUpKeyframe 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.3s forwards;
+  opacity: 0;
+}
+
+/* Pulsing Aura Ring for Floating Action Buttons */
+@keyframes pulseRingKeyframe {
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
+  }
+  70% {
+    transform: scale(1.08);
+    box-shadow: 0 0 0 14px rgba(34, 197, 94, 0);
+  }
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
+  }
+}
+
+.fab-pulse-ring {
+  animation: pulseRingKeyframe 2.2s infinite;
+}
+
+/* Marquee Ticker Continuous Loop */
+@keyframes marqueeScrollKeyframe {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.marquee-container {
+  overflow: hidden;
+  position: relative;
+  width: 100%;
+  mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+  -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+}
+
+.marquee-track {
+  display: flex;
+  gap: 2rem;
+  width: max-content;
+  animation: marqueeScrollKeyframe 30s linear infinite;
+}
+
+.marquee-container:hover .marquee-track {
+  animation-play-state: paused;
+}
+
+/* Glow Accent Card Hovers */
+.glow-card-red {
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.glow-card-red:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.4), 0 0 20px rgba(227, 6, 19, 0.25);
+  border-color: rgba(227, 6, 19, 0.5) !important;
+}
+
+.glow-card-emerald {
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.glow-card-emerald:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.4), 0 0 20px rgba(0, 166, 81, 0.25);
+  border-color: rgba(0, 166, 81, 0.5) !important;
+}
+

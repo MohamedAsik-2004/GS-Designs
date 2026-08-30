@@ -26,6 +26,8 @@ export const BRAND_INFO = {
     youtube: "https://youtube.com",
     behance: "https://behance.net"
   },
+  googleMapsUrl: "https://maps.app.goo.gl/8VySk1rQaABQZkZX8",
+  mapEmbedUrl: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3919.4506912627617!2d79.83815707480491!3d10.776752289372041!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3a556c855e5edc79%3A0x240a060699ae3bdd!2zR1Mg4K6f4K6_4K6a4K-I4K6p4K-N4K644K-N!5e0!3m2!1sen!2sin!4v1788067087720!5m2!1sen!2sin",
   stats: {
     projectsCompleted: 5240,
     happyClients: 1250,
@@ -499,8 +501,17 @@ export const PRICING_PACKAGES = [
   }
 ];
 
+export const TIMELINE_EVENTS = [
+  { id: "tl-1", year: "2014", title: "Agency Founded", desc: "Started as a boutique graphic design studio in Nagapattinam with 2 printing presses." },
+  { id: "tl-2", year: "2017", title: "Large Format Expansion", desc: "Acquired Roland solvent & UV printers for commercial outdoor flex hoardings." },
+  { id: "tl-3", year: "2020", title: "Digital Campaign Unit", desc: "Expanded into 3D motion design, reels, and digital advertising blitzes." },
+  { id: "tl-4", year: "2023", title: "5000+ Milestone", desc: "Crossed 5,000 completed corporate projects and expanded client lounge." },
+  { id: "tl-5", year: "2026", title: "Smart NFC & AI Branding", desc: "Introduced NFC visiting cards, security certificates & AI packaging renders." }
+];
+
 export const TEAM_MEMBERS = [
   {
+    id: "tm-1",
     name: "Gaurav Sharma",
     position: "Founder & Managing Director",
     image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80",
@@ -508,6 +519,7 @@ export const TEAM_MEMBERS = [
     skills: ["Brand Strategy", "Signage Engineering", "Creative Direction"]
   },
   {
+    id: "tm-2",
     name: "Siddharth Verma",
     position: "Lead Art Director & 3D Artist",
     image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80",
@@ -515,6 +527,7 @@ export const TEAM_MEMBERS = [
     skills: ["Logo Architecture", "Packaging Renders", "Motion Graphics"]
   },
   {
+    id: "tm-3",
     name: "Ananya Roy",
     position: "Senior Graphic & Print Specialist",
     image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=400&q=80",
@@ -522,6 +535,7 @@ export const TEAM_MEMBERS = [
     skills: ["Pre-Press Processing", "Gold Foil Styling", "Typography"]
   },
   {
+    id: "tm-4",
     name: "Vikram Malhotra",
     position: "Head of Flex & Signage Production",
     image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80",

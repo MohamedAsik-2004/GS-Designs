@@ -4,7 +4,12 @@ import { BRAND_INFO } from '../data/agencyData';
 import { Phone, Mail, MapPin, Clock, Send, MessageCircle, CheckCircle2, Navigation } from 'lucide-react';
 
 const ContactPage = () => {
-  const { submitContactMessage } = useThemeLanguage();
+  const { submitContactMessage, cmsBrand, cmsSections } = useThemeLanguage();
+
+  const phoneNum = cmsBrand?.phone || BRAND_INFO.phone;
+  const emailAddr = cmsBrand?.email || BRAND_INFO.email;
+  const whatsappNum = cmsBrand?.whatsapp || BRAND_INFO.whatsapp;
+  const studioAddr = cmsBrand?.address || BRAND_INFO.address;
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -36,7 +41,7 @@ const ContactPage = () => {
 
   const handleWhatsApp = () => {
     const text = encodeURIComponent("Hello GS Designs! I found your contact page and would like to connect.");
-    window.open(`https://wa.me/${BRAND_INFO.whatsapp}?text=${text}`, '_blank');
+    window.open(`https://wa.me/${whatsappNum}?text=${text}`, '_blank');
   };
 
   return (
@@ -53,6 +58,7 @@ const ContactPage = () => {
           </p>
         </div>
 
+        {cmsSections?.contactInfo !== false && (
         <div className="grid-2" style={{ marginBottom: '4rem', gap: '3rem' }}>
           {/* Contact Details & Info Cards */}
           <div>
@@ -69,7 +75,7 @@ const ContactPage = () => {
                   <MapPin size={22} style={{ color: 'var(--color-primary-red)', flexShrink: 0, marginTop: '2px' }} />
                   <div>
                     <strong style={{ color: 'var(--text-main)', display: 'block' }}>Studio & Print Workshop Address</strong>
-                    <span>{BRAND_INFO.address}, {BRAND_INFO.cityState}</span>
+                    <span>{studioAddr}</span>
                   </div>
                 </div>
 
@@ -77,7 +83,7 @@ const ContactPage = () => {
                   <Phone size={22} style={{ color: 'var(--color-emerald)', flexShrink: 0, marginTop: '2px' }} />
                   <div>
                     <strong style={{ color: 'var(--text-main)', display: 'block' }}>Direct Phone Numbers</strong>
-                    <span>{BRAND_INFO.phone} / {BRAND_INFO.altPhone}</span>
+                    <span>{phoneNum}</span>
                   </div>
                 </div>
 
@@ -85,7 +91,7 @@ const ContactPage = () => {
                   <Mail size={22} style={{ color: 'var(--color-primary-red)', flexShrink: 0, marginTop: '2px' }} />
                   <div>
                     <strong style={{ color: 'var(--text-main)', display: 'block' }}>Official Email Desk</strong>
-                    <span>{BRAND_INFO.email}</span>
+                    <span>{emailAddr}</span>
                   </div>
                 </div>
 
@@ -111,35 +117,71 @@ const ContactPage = () => {
               </div>
             </div>
 
-            {/* Simulated Interactive Map Frame */}
-            <div style={{
-              height: '240px',
-              borderRadius: 'var(--radius-lg)',
-              overflow: 'hidden',
-              position: 'relative',
-              background: 'linear-gradient(135deg, #12151E, #1E2433)',
-              border: '1px solid var(--border-color)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center'
-            }}>
-              <div style={{ textAlign: 'center', padding: '1rem' }}>
-                <Navigation size={36} style={{ color: 'var(--color-primary-red)', marginBottom: '8px' }} />
-                <h4 style={{ color: '#FFF', fontSize: '1.1rem' }}>GS Heights Interactive Map</h4>
-                <p style={{ fontSize: '0.85rem', color: '#94A3B8', margin: '4px 0 12px' }}>
-                  Creative Avenue, Metro Station Road, New Delhi
-                </p>
-                <a
-                  href={`https://maps.google.com/?q=${encodeURIComponent(BRAND_INFO.address)}`}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="btn-primary btn-sm"
-                  style={{ textDecoration: 'none' }}
-                >
-                  Open in Google Maps
-                </a>
-              </div>
-            </div>
+            {/* Interactive Map Frame with Admin Uploaded Google Maps URL */}
+            {(() => {
+              const rawEmbed = cmsBrand?.mapEmbedUrl || BRAND_INFO.mapEmbedUrl;
+              const cleanEmbedUrl = rawEmbed ? (rawEmbed.match(/src=["']([^"']+)["']/i)?.[1] || rawEmbed) : '';
+              const targetDirectUrl = cmsBrand?.googleMapsUrl || BRAND_INFO.googleMapsUrl;
+
+              return (
+                <div style={{
+                  height: '280px',
+                  borderRadius: 'var(--radius-lg)',
+                  overflow: 'hidden',
+                  position: 'relative',
+                  background: 'linear-gradient(135deg, #12151E, #1E2433)',
+                  border: '1px solid var(--border-color)',
+                  display: 'flex',
+                  flexDirection: 'column'
+                }}>
+                  {cleanEmbedUrl ? (
+                    <iframe
+                      title="Studio Location Google Map"
+                      src={cleanEmbedUrl}
+                      width="100%"
+                      height="100%"
+                      style={{ border: 0, flex: 1 }}
+                      allowFullScreen=""
+                      loading="lazy"
+                    />
+                  ) : (
+                    <div style={{ flex: 1, textAlign: 'center', padding: '1.25rem', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                      <Navigation size={36} style={{ color: 'var(--color-primary-red)', marginBottom: '8px' }} />
+                      <h4 style={{ color: '#FFF', fontSize: '1.1rem', marginBottom: '4px' }}>GS Studio Interactive Map</h4>
+                      <p style={{ fontSize: '0.85rem', color: '#94A3B8', margin: '4px 0 14px', maxWidth: '320px', lineHeight: 1.4 }}>
+                        {studioAddr}
+                      </p>
+                    </div>
+                  )}
+
+                  <div style={{
+                    padding: '0.75rem 1rem',
+                    background: 'rgba(18, 21, 30, 0.9)',
+                    backdropFilter: 'blur(8px)',
+                    borderTop: '1px solid var(--border-color)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    gap: '10px'
+                  }}>
+                    <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <MapPin size={14} style={{ color: 'var(--color-primary-red)' }} />
+                      Velippalayam, Nagapattinam
+                    </span>
+                    <a
+                      href={targetDirectUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="btn-primary btn-sm"
+                      style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '0.8rem', padding: '0.4rem 0.85rem' }}
+                    >
+                      <MapPin size={14} />
+                      <span>Open in Google Maps App</span>
+                    </a>
+                  </div>
+                </div>
+              );
+            })()}
           </div>
 
           {/* Contact Form */}
@@ -243,6 +285,7 @@ const ContactPage = () => {
             )}
           </div>
         </div>
+        )}
       </div>
     </div>
   );

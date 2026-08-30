@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useThemeLanguage } from '../context/ThemeLanguageContext';
 import { SERVICES_LIST } from '../data/agencyData';
-import { X, Calculator, CheckCircle2, Send, Sparkles } from 'lucide-react';
+import { X, FileText, CheckCircle2, Send } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 const QuoteModal = () => {
-  const { quoteModalOpen, closeQuoteModal, selectedQuoteService, submitQuoteRequest } = useThemeLanguage();
+  const { quoteModalOpen, closeQuoteModal, selectedQuoteService, submitQuoteRequest, adminServices } = useThemeLanguage();
 
+  const servicesList = adminServices || SERVICES_LIST;
   const [serviceId, setServiceId] = useState('logo-design');
-  const [quantity, setQuantity] = useState(1);
   const [name, setName] = useState('');
   const [company, setCompany] = useState('');
   const [email, setEmail] = useState('');
@@ -24,8 +24,7 @@ const QuoteModal = () => {
 
   if (!quoteModalOpen) return null;
 
-  const currentService = SERVICES_LIST.find(s => s.id === serviceId) || SERVICES_LIST[0];
-  const estimatedCost = Math.max(currentService.numericPrice * quantity, currentService.numericPrice);
+  const currentService = servicesList.find(s => s.id === serviceId) || servicesList[0] || SERVICES_LIST[0];
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -35,7 +34,8 @@ const QuoteModal = () => {
       email,
       phone,
       service: currentService.title,
-      budget: `₹${estimatedCost.toLocaleString('en-IN')}`
+      budget: 'Custom Scope',
+      details
     });
 
     setSubmitted(true);
@@ -113,10 +113,9 @@ const QuoteModal = () => {
               <CheckCircle2 size={40} />
             </div>
             <h3 style={{ fontSize: '1.8rem', marginBottom: '0.5rem' }}>Quote Request Sent!</h3>
-            <p style={{ color: 'var(--text-muted)', maxWidth: '420px', margin: '0 auto 1.5rem' }}>
+            <p style={{ color: 'var(--text-muted)', maxWidth: '420px', margin: '0 auto' }}>
               Thank you, <strong>{name}</strong>. Our senior advertising consultant will review your specifications and contact you on <strong>{phone || email}</strong> within 2 hours.
             </p>
-            <span className="badge badge-emerald">Estimated Value: ₹{estimatedCost.toLocaleString('en-IN')}</span>
           </div>
         ) : (
           <div>
@@ -131,64 +130,29 @@ const QuoteModal = () => {
                 alignItems: 'center',
                 justifyContent: 'center'
               }}>
-                <Calculator size={22} />
+                <FileText size={22} />
               </div>
               <div>
                 <h3 style={{ fontSize: '1.4rem', color: 'var(--text-main)' }}>Request Instant Custom Quote</h3>
-                <p style={{ fontSize: '0.88rem', color: 'var(--text-muted)' }}>Get transparent pricing & free design consultation</p>
+                <p style={{ fontSize: '0.88rem', color: 'var(--text-muted)' }}>Get free design consultation & expert project estimation</p>
               </div>
             </div>
 
             <form onSubmit={handleSubmit}>
-              <div className="grid-2">
-                {/* Service Select */}
-                <div className="form-group">
-                  <label className="form-label">Select Advertising Service</label>
-                  <select
-                    value={serviceId}
-                    onChange={e => setServiceId(e.target.value)}
-                    className="form-select"
-                  >
-                    {SERVICES_LIST.map(s => (
-                      <option key={s.id} value={s.id} style={{ background: '#12151E' }}>
-                        {s.title} ({s.startingPrice})
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                {/* Quantity */}
-                <div className="form-group">
-                  <label className="form-label">Quantity / Scale ({quantity})</label>
-                  <input
-                    type="range"
-                    min="1"
-                    max="50"
-                    value={quantity}
-                    onChange={e => setQuantity(parseInt(e.target.value))}
-                    style={{ width: '100%', accentColor: '#E30613', margin: '10px 0' }}
-                  />
-                </div>
-              </div>
-
-              {/* Dynamic Price Estimator Card */}
-              <div style={{
-                background: 'rgba(227, 6, 19, 0.08)',
-                border: '1px solid rgba(227, 6, 19, 0.25)',
-                borderRadius: 'var(--radius-md)',
-                padding: '1rem',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                marginBottom: '1.25rem'
-              }}>
-                <div>
-                  <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'block' }}>Estimated Starting Cost</span>
-                  <strong style={{ fontSize: '1.6rem', color: 'var(--color-primary-red)' }}>₹{estimatedCost.toLocaleString('en-IN')}</strong>
-                </div>
-                <span className="badge badge-emerald" style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                  <Sparkles size={14} /> Price Includes Source Files & Warranty
-                </span>
+              {/* Service Select */}
+              <div className="form-group" style={{ marginBottom: '1.25rem' }}>
+                <label className="form-label">Select Advertising Service</label>
+                <select
+                  value={serviceId}
+                  onChange={e => setServiceId(e.target.value)}
+                  className="form-select"
+                >
+                  {servicesList.map(s => (
+                    <option key={s.id} value={s.id} style={{ background: '#12151E' }}>
+                      {s.title}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               {/* User Info Fields */}

@@ -5,9 +5,13 @@ import { ArrowUp, Phone, Mail, MapPin, Clock, Send, ShieldAlert, AlertTriangle }
 import BrandLogo from './BrandLogo';
 
 const Footer = () => {
-  const { setActivePage, openQuoteModal } = useThemeLanguage();
+  const { setActivePage, openQuoteModal, cmsBrand, adminServices } = useThemeLanguage();
   const [newsletterEmail, setNewsletterEmail] = useState('');
   const [subscribed, setSubscribed] = useState(false);
+
+  const phoneNum = cmsBrand?.phone || BRAND_INFO.phone;
+  const emailAddr = cmsBrand?.email || BRAND_INFO.email;
+  const displayServicesList = (adminServices || SERVICES_LIST).slice(0, 8);
 
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -68,11 +72,11 @@ const Footer = () => {
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Phone size={16} style={{ color: 'var(--color-emerald)', flexShrink: 0 }} />
-                <span>{BRAND_INFO.phone}</span>
+                <span>{phoneNum}</span>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Mail size={16} style={{ color: 'var(--color-primary-red)', flexShrink: 0 }} />
-                <span>{BRAND_INFO.email}</span>
+                <span>{emailAddr}</span>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Clock size={16} style={{ color: 'var(--color-emerald)', flexShrink: 0 }} />
@@ -97,9 +101,6 @@ const Footer = () => {
                 { id: 'about', label: 'About Agency' },
                 { id: 'services', label: 'All Services (18)' },
                 { id: 'portfolio', label: 'Creative Portfolio' },
-                { id: 'gallery', label: 'Photo Gallery' },
-                { id: 'pricing', label: 'Pricing Packages' },
-                { id: 'blog', label: 'Agency Insights & News' },
                 { id: 'careers', label: 'Careers & Hiring' },
                 { id: 'contact', label: 'Contact Us' }
               ].map(link => (
@@ -134,7 +135,7 @@ const Footer = () => {
               Popular Services
             </h4>
             <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
-              {SERVICES_LIST.slice(0, 8).map(srv => (
+              {displayServicesList.map(srv => (
                 <li key={srv.id}>
                   <button
                     onClick={() => { setActivePage('services'); scrollToTop(); }}

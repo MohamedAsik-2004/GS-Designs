@@ -38,48 +38,57 @@ const MessagesInboxView = () => {
       </div>
 
       <div className="glass-card" style={{ padding: '1rem' }}>
-        {adminMessages.map(msg => (
-          <div
-            key={msg.id}
-            onClick={() => toggleRead(msg.id)}
-            style={{
-              padding: '1.25rem',
-              borderBottom: '1px solid var(--border-color)',
-              background: msg.read ? 'transparent' : 'rgba(227, 6, 19, 0.05)',
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              cursor: 'pointer'
-            }}
-          >
-            <div style={{ maxWidth: '70%' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-                <strong style={{ color: 'var(--text-main)', fontSize: '1rem' }}>{msg.sender}</strong>
-                <span style={{ fontSize: '0.8rem', color: 'var(--text-dim)' }}>({msg.email})</span>
-                {!msg.read && <span className="badge badge-red" style={{ fontSize: '0.65rem' }}>NEW</span>}
-              </div>
-              <h4 style={{ fontSize: '0.95rem', color: 'var(--text-main)', marginBottom: '4px' }}>{msg.subject}</h4>
-              <p style={{ fontSize: '0.88rem', color: 'var(--text-muted)', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                {msg.text}
-              </p>
-            </div>
-
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <button
-                onClick={(e) => { e.stopPropagation(); setReplyMsgItem(msg); }}
-                className="btn-secondary btn-sm"
-              >
-                <Reply size={14} /> Reply
-              </button>
-              <button
-                onClick={(e) => { e.stopPropagation(); handleDelete(msg.id); }}
-                style={{ background: 'none', border: 'none', color: '#FF4D58', cursor: 'pointer' }}
-              >
-                <Trash2 size={18} />
-              </button>
-            </div>
+        {adminMessages.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '3rem 1rem', color: 'var(--text-muted)' }}>
+            <Mail size={40} style={{ opacity: 0.4, marginBottom: '1rem' }} />
+            <h4>No Messages in Inbox</h4>
+            <p style={{ fontSize: '0.9rem', color: 'var(--text-dim)' }}>Contact inquiries and quote messages from site visitors will appear here.</p>
           </div>
-        ))}
+        ) : (
+          adminMessages.map(msg => (
+            <div
+              key={msg.id}
+              onClick={() => toggleRead(msg.id)}
+              style={{
+                padding: '1.25rem',
+                borderBottom: '1px solid var(--border-color)',
+                background: msg.read ? 'transparent' : 'rgba(227, 6, 19, 0.05)',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                cursor: 'pointer'
+              }}
+            >
+              <div style={{ maxWidth: '75%' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px', flexWrap: 'wrap' }}>
+                  <strong style={{ color: 'var(--text-main)', fontSize: '1rem' }}>{msg.sender}</strong>
+                  <span style={{ fontSize: '0.8rem', color: 'var(--text-dim)' }}>({msg.email})</span>
+                  {!msg.read && <span className="badge badge-red" style={{ fontSize: '0.65rem' }}>NEW</span>}
+                </div>
+                <h4 style={{ fontSize: '0.95rem', color: 'var(--text-main)', marginBottom: '6px' }}>{msg.subject}</h4>
+                <div style={{ fontSize: '0.88rem', color: 'var(--text-muted)', margin: 0, whiteSpace: 'pre-line', lineHeight: 1.5 }}>
+                  {msg.text}
+                </div>
+                <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)', marginTop: '6px', display: 'block' }}>{msg.date}</span>
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <button
+                  onClick={(e) => { e.stopPropagation(); setReplyMsgItem(msg); }}
+                  className="btn-secondary btn-sm"
+                >
+                  <Reply size={14} /> Reply
+                </button>
+                <button
+                  onClick={(e) => { e.stopPropagation(); handleDelete(msg.id); }}
+                  style={{ background: 'none', border: 'none', color: '#FF4D58', cursor: 'pointer' }}
+                >
+                  <Trash2 size={18} />
+                </button>
+              </div>
+            </div>
+          ))
+        )}
       </div>
 
       {/* Reply Modal */}

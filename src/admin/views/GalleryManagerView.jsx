@@ -3,7 +3,7 @@ import { useThemeLanguage } from '../../context/ThemeLanguageContext';
 import { Upload, Image as ImageIcon, Trash2, Shield, Plus, Check, FolderPlus, X } from 'lucide-react';
 
 const GalleryManagerView = () => {
-  const { adminGallery, setAdminGallery } = useThemeLanguage();
+  const { adminGallery, setAdminGallery, notifyCrossTabSync } = useThemeLanguage();
   const [selectedAlbumId, setSelectedAlbumId] = useState(adminGallery?.[0]?.id || 'printing');
   const [watermark, setWatermark] = useState(true);
   const [dragActive, setDragActive] = useState(false);
@@ -14,43 +14,79 @@ const GalleryManagerView = () => {
 
   const albums = adminGallery || [];
 
+  const compressAndProcessFile = (file, callback) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const dataUrl = e.target.result;
+      const img = new window.Image();
+      img.onload = () => {
+        try {
+          const canvas = document.createElement('canvas');
+          const MAX_WIDTH = 400;
+          const MAX_HEIGHT = 400;
+          let width = img.width;
+          let height = img.height;
+
+          if (width > height) {
+            if (width > MAX_WIDTH) {
+              height *= MAX_WIDTH / width;
+              width = MAX_WIDTH;
+            }
+          } else {
+            if (height > MAX_HEIGHT) {
+              width *= MAX_HEIGHT / height;
+              height = MAX_HEIGHT;
+            }
+          }
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+          const compressed = canvas.toDataURL('image/jpeg', 0.85);
+          callback(compressed);
+        } catch (err) {
+          callback(dataUrl);
+        }
+      };
+      img.onerror = () => callback(dataUrl);
+      img.src = dataUrl;
+    };
+    reader.readAsDataURL(file);
+  };
+
   const handleFilesSelected = (files) => {
     if (!files || files.length === 0) return;
 
     const fileList = Array.from(files);
     const newImageItems = [];
-
     let processedCount = 0;
+
     fileList.forEach((file) => {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const dataUrl = e.target.result;
+      compressAndProcessFile(file, (finalUrl) => {
         newImageItems.push({
           id: 'img_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
-          url: dataUrl,
+          url: finalUrl,
           caption: file.name.replace(/\.[^/.]+$/, "") + (watermark ? ' (GS Watermarked)' : '')
         });
         processedCount++;
 
         if (processedCount === fileList.length) {
-          // Append to target album
-          setAdminGallery(prevAlbums => {
-            return prevAlbums.map(alb => {
-              if (alb.id === selectedAlbumId) {
-                return {
-                  ...alb,
-                  images: [...(alb.images || []), ...newImageItems]
-                };
-              }
-              return alb;
-            });
+          const updatedAlbums = albums.map(alb => {
+            if (alb.id === selectedAlbumId) {
+              return {
+                ...alb,
+                images: [...(alb.images || []), ...newImageItems]
+              };
+            }
+            return alb;
           });
 
+          setAdminGallery(updatedAlbums);
+          notifyCrossTabSync('gs_admin_gallery', updatedAlbums);
           setStatusMsg(`Successfully uploaded ${fileList.length} image(s) to selected album!`);
           setTimeout(() => setStatusMsg(''), 4000);
         }
-      };
-      reader.readAsDataURL(file);
+      });
     });
   };
 
@@ -64,17 +100,18 @@ const GalleryManagerView = () => {
 
   const handleDeleteImage = (albumId, imageId) => {
     if (window.confirm('Are you sure you want to delete this photo from the album?')) {
-      setAdminGallery(prevAlbums =>
-        prevAlbums.map(alb => {
-          if (alb.id === albumId) {
-            return {
-              ...alb,
-              images: (alb.images || []).filter(img => img.id !== imageId)
-            };
-          }
-          return alb;
-        })
-      );
+      const updatedAlbums = albums.map(alb => {
+        if (alb.id === albumId) {
+          return {
+            ...alb,
+            images: (alb.images || []).filter(img => img.id !== imageId)
+          };
+        }
+        return alb;
+      });
+
+      setAdminGallery(updatedAlbums);
+      notifyCrossTabSync('gs_admin_gallery', updatedAlbums);
       setStatusMsg('Photo deleted from gallery.');
       setTimeout(() => setStatusMsg(''), 3000);
     }
@@ -91,7 +128,9 @@ const GalleryManagerView = () => {
       images: []
     };
 
-    setAdminGallery(prev => [...prev, newAlbumObj]);
+    const updatedAlbums = [...albums, newAlbumObj];
+    setAdminGallery(updatedAlbums);
+    notifyCrossTabSync('gs_admin_gallery', updatedAlbums);
     setSelectedAlbumId(newId);
     setNewAlbumTitle('');
     setShowNewAlbumModal(false);
