@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { BRAND_INFO, SERVICES_LIST, PORTFOLIO_ITEMS, BLOG_POSTS, INITIAL_ADMIN_QUOTES, INITIAL_ADMIN_MESSAGES, GALLERY_ALBUMS, CAREER_OPENINGS, TIMELINE_EVENTS, TEAM_MEMBERS } from '../data/agencyData';
+import { syncToFirebase, subscribeToFirebase } from '../config/firebase';
 
 const ThemeLanguageContext = createContext();
 
@@ -116,10 +117,11 @@ export const ThemeLanguageProvider = ({ children }) => {
   useEffect(() => { saveToStorage('gs_cms_brand', cmsBrand); }, [cmsBrand]);
   useEffect(() => { saveToStorage('gs_cms_sections', cmsSections); }, [cmsSections]);
 
-  // Real-time Cross-Tab & Refresh Synchronization Engine
+  // Real-time Cross-Tab & Cloud Synchronization Engine
   const notifyCrossTabSync = (storageKey, valueToSave) => {
     if (storageKey && valueToSave !== undefined) {
       saveToStorage(storageKey, valueToSave);
+      syncToFirebase(storageKey, valueToSave);
     }
     try {
       const channel = new BroadcastChannel('gs_designs_channel');
@@ -128,7 +130,34 @@ export const ThemeLanguageProvider = ({ children }) => {
     } catch (e) {}
   };
 
+  // Subscribe to Firebase Realtime Database updates for live multi-device persistence
   useEffect(() => {
+    const keys = [
+      { key: 'gs_admin_quotes', setter: setAdminQuotes },
+      { key: 'gs_admin_messages', setter: setAdminMessages },
+      { key: 'gs_admin_services', setter: setAdminServices },
+      { key: 'gs_admin_portfolio', setter: setAdminPortfolio },
+      { key: 'gs_admin_blog', setter: setAdminBlog },
+      { key: 'gs_admin_gallery', setter: setAdminGallery },
+      { key: 'gs_admin_careers', setter: setAdminCareers },
+      { key: 'gs_admin_timeline', setter: setAdminTimeline },
+      { key: 'gs_admin_team', setter: setAdminTeam },
+      { key: 'gs_cms_hero', setter: setCmsHero },
+      { key: 'gs_cms_story', setter: setCmsStory },
+      { key: 'gs_cms_seo', setter: setCmsSeo },
+      { key: 'gs_cms_brand', setter: setCmsBrand },
+      { key: 'gs_cms_sections', setter: setCmsSections }
+    ];
+
+    const unsubscribes = keys.map(({ key, setter }) => {
+      return subscribeToFirebase(key, (val) => {
+        if (val !== undefined && val !== null) {
+          setter(val);
+          saveToStorage(key, val);
+        }
+      });
+    });
+
     const reloadStoredState = () => {
       try {
         setAdminQuotes(loadFromStorage('gs_admin_quotes', INITIAL_ADMIN_QUOTES));
@@ -166,6 +195,7 @@ export const ThemeLanguageProvider = ({ children }) => {
     } catch (e) {}
 
     return () => {
+      unsubscribes.forEach(unsub => unsub && unsub());
       window.removeEventListener('storage', handleStorageChange);
       window.removeEventListener('gs_local_sync', reloadStoredState);
       if (channel) channel.close();
