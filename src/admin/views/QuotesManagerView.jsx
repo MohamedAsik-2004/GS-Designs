@@ -3,7 +3,7 @@ import { useThemeLanguage } from '../../context/ThemeLanguageContext';
 import { Download, Printer, CheckCircle, Clock, XCircle, UserCheck, Eye, Trash2, Phone, MessageSquare, X, ShieldCheck, Mail } from 'lucide-react';
 
 const QuotesManagerView = () => {
-  const { adminQuotes, setAdminQuotes } = useThemeLanguage();
+  const { adminQuotes, setAdminQuotes, notifyCrossTabSync } = useThemeLanguage();
   const [filterStatus, setFilterStatus] = useState('All');
   const [selectedQuote, setSelectedQuote] = useState(null);
 
@@ -12,14 +12,18 @@ const QuotesManagerView = () => {
     : adminQuotes.filter(q => q.status === filterStatus);
 
   const handleStatusChange = (id, newStatus) => {
-    setAdminQuotes(prev => prev.map(q => q.id === id ? { ...q, status: newStatus } : q));
+    const updated = adminQuotes.map(q => q.id === id ? { ...q, status: newStatus } : q);
+    setAdminQuotes(updated);
+    notifyCrossTabSync('gs_admin_quotes', updated);
     if (selectedQuote && selectedQuote.id === id) {
       setSelectedQuote(prev => ({ ...prev, status: newStatus }));
     }
   };
 
   const handleStaffChange = (id, staffName) => {
-    setAdminQuotes(prev => prev.map(q => q.id === id ? { ...q, assignedStaff: staffName } : q));
+    const updated = adminQuotes.map(q => q.id === id ? { ...q, assignedStaff: staffName } : q);
+    setAdminQuotes(updated);
+    notifyCrossTabSync('gs_admin_quotes', updated);
     if (selectedQuote && selectedQuote.id === id) {
       setSelectedQuote(prev => ({ ...prev, assignedStaff: staffName }));
     }
@@ -27,7 +31,9 @@ const QuotesManagerView = () => {
 
   const handleDeleteQuote = (id) => {
     if (window.confirm(`Are you sure you want to delete quote request ${id}?`)) {
-      setAdminQuotes(prev => prev.filter(q => q.id !== id));
+      const updated = adminQuotes.filter(q => q.id !== id);
+      setAdminQuotes(updated);
+      notifyCrossTabSync('gs_admin_quotes', updated);
       if (selectedQuote?.id === id) setSelectedQuote(null);
     }
   };

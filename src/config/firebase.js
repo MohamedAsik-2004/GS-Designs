@@ -29,16 +29,15 @@ export const syncToFirebase = (key, data) => {
   }
 };
 
-export const subscribeToFirebase = (key, callback, initialFallback) => {
+export const subscribeToFirebase = (key, callback) => {
   try {
     const dbRef = ref(db, 'cms/' + key);
     return onValue(dbRef, (snapshot) => {
       if (snapshot.exists()) {
-        callback(snapshot.val());
-      } else if (initialFallback !== undefined && initialFallback !== null) {
-        // Automatically seed Firebase with initial state if cloud data doesn't exist yet
-        set(dbRef, initialFallback);
-        callback(initialFallback);
+        const val = snapshot.val();
+        if (val !== undefined && val !== null) {
+          callback(val);
+        }
       }
     });
   } catch (error) {

@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { useThemeLanguage } from '../../context/ThemeLanguageContext';
 import { BRAND_INFO } from '../../data/agencyData';
-import { Save, Download, Upload, ShieldAlert, CheckCircle2, Globe, FileCode, Image, X, Layers, Eye, EyeOff, Sliders, BookOpen, MapPin, Briefcase, Plus, Calendar, Users } from 'lucide-react';
+import { Save, Download, Upload, ShieldAlert, CheckCircle2, Globe, FileCode, Image, X, Layers, Eye, EyeOff, Sliders, BookOpen, MapPin, Briefcase, Plus, Calendar, Users, RefreshCw } from 'lucide-react';
 
 // Reliable, lightweight Image Upload Processor with Instant Preview & Background Canvas Compression
 const processImageUpload = (file, onImageReady) => {
@@ -57,7 +57,14 @@ const processImageUpload = (file, onImageReady) => {
 };
 
 const WebsiteManagerView = () => {
-  const { maintenanceMode, setMaintenanceMode, adminUser, cmsHero, setCmsHero, cmsSeo, setCmsSeo, cmsSections, setCmsSections, notifyCrossTabSync } = useThemeLanguage();
+  const { maintenanceMode, setMaintenanceMode, adminUser, cmsHero, setCmsHero, cmsSeo, setCmsSeo, cmsSections, setCmsSections, notifyCrossTabSync, syncAllStateToFirebase } = useThemeLanguage();
+  const [cloudSynced, setCloudSynced] = useState(false);
+
+  const handleForceCloudSync = () => {
+    syncAllStateToFirebase();
+    setCloudSynced(true);
+    setTimeout(() => setCloudSynced(false), 4000);
+  };
 
   const [heroHeadline, setHeroHeadline] = useState(cmsHero.headline);
   const [heroSubtext, setHeroSubtext] = useState(cmsHero.subtext);
@@ -120,10 +127,7 @@ const WebsiteManagerView = () => {
     const currentVal = cmsSections?.[key] !== false; // default true
     const updated = { ...(cmsSections || {}), [key]: !currentVal };
     setCmsSections(updated);
-    try {
-      localStorage.setItem('gs_cms_sections', JSON.stringify(updated));
-    } catch (e) {}
-    notifyCrossTabSync();
+    notifyCrossTabSync('gs_cms_sections', updated);
   };
 
   return (
@@ -323,22 +327,16 @@ const WebsiteManagerView = () => {
 
       {/* Backup & System Controls */}
       <div className="grid-2">
-        <div className="glass-card" style={{ padding: '2rem' }}>
-          <h3 style={{ fontSize: '1.2rem', color: 'var(--text-main)', marginBottom: '1rem' }}>Backup & Restore CMS Data</h3>
+        <div className="glass-card" style={{ padding: '2rem', border: '1px solid rgba(16, 185, 129, 0.3)' }}>
+          <h3 style={{ fontSize: '1.2rem', color: 'var(--text-main)', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <RefreshCw size={18} style={{ color: 'var(--color-emerald)' }} /> Firebase Cloud Live Sync
+          </h3>
           <p style={{ fontSize: '0.88rem', color: 'var(--text-muted)', marginBottom: '1.25rem' }}>
-            Export a full JSON database snapshot of your website content, quotes, and services.
+            Push all current Admin CMS changes (Services, Story, Team, Hero, Portfolio) directly to Firebase Realtime Database for instant global visitor sync.
           </p>
-          <button onClick={() => {
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({ cmsHero, cmsSeo, cmsSections }));
-            const downloadAnchor = document.createElement('a');
-            downloadAnchor.setAttribute("href", dataStr);
-            downloadAnchor.setAttribute("download", `GS_CMS_Backup_${Date.now()}.json`);
-            document.body.appendChild(downloadAnchor);
-            downloadAnchor.click();
-            downloadAnchor.remove();
-          }} className="btn-secondary" style={{ width: '100%', justifyContent: 'center' }}>
-            <Download size={18} />
-            <span>Download JSON Backup</span>
+          <button onClick={handleForceCloudSync} className="btn-emerald" style={{ width: '100%', justifyContent: 'center' }}>
+            <RefreshCw size={18} />
+            <span>{cloudSynced ? '✓ All Data Synced to Visitors!' : 'Push All CMS Data to Firebase Cloud'}</span>
           </button>
         </div>
 
@@ -363,7 +361,7 @@ const WebsiteManagerView = () => {
 
 // Sub-component for editing/adding Services in CMS
 const ServicesCatalogManager = () => {
-  const { adminServices, setAdminServices } = useThemeLanguage();
+  const { adminServices, setAdminServices, notifyCrossTabSync } = useThemeLanguage();
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
 

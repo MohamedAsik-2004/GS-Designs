@@ -3,17 +3,21 @@ import { useThemeLanguage } from '../../context/ThemeLanguageContext';
 import { Mail, Trash2, Reply, CheckCircle2, Archive, Send, X } from 'lucide-react';
 
 const MessagesInboxView = () => {
-  const { adminMessages, setAdminMessages } = useThemeLanguage();
+  const { adminMessages, setAdminMessages, notifyCrossTabSync } = useThemeLanguage();
   const [replyMsgItem, setReplyMsgItem] = useState(null);
   const [replyText, setReplyText] = useState('');
   const [replied, setReplied] = useState(false);
 
   const toggleRead = (id) => {
-    setAdminMessages(prev => prev.map(m => m.id === id ? { ...m, read: true } : m));
+    const updated = adminMessages.map(m => m.id === id ? { ...m, read: true } : m);
+    setAdminMessages(updated);
+    notifyCrossTabSync('gs_admin_messages', updated);
   };
 
   const handleDelete = (id) => {
-    setAdminMessages(prev => prev.filter(m => m.id !== id));
+    const updated = adminMessages.filter(m => m.id !== id);
+    setAdminMessages(updated);
+    notifyCrossTabSync('gs_admin_messages', updated);
   };
 
   const handleSendReply = (e) => {
