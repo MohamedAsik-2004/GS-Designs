@@ -29,7 +29,7 @@ export const syncToFirebase = (key, data) => {
   }
 };
 
-export const subscribeToFirebase = (key, callback) => {
+export const subscribeToFirebase = (key, callback, initialFallback) => {
   try {
     const dbRef = ref(db, 'cms/' + key);
     return onValue(dbRef, (snapshot) => {
@@ -38,6 +38,10 @@ export const subscribeToFirebase = (key, callback) => {
         if (val !== undefined && val !== null) {
           callback(val);
         }
+      } else if (initialFallback !== undefined && initialFallback !== null) {
+        // If cloud database node is empty, initialize it once
+        set(dbRef, initialFallback);
+        callback(initialFallback);
       }
     });
   } catch (error) {

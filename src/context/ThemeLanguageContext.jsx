@@ -146,32 +146,40 @@ export const ThemeLanguageProvider = ({ children }) => {
     syncToFirebase('gs_cms_sections', cmsSections);
   };
 
+  // Auto-sync all current state to Firebase Cloud whenever Admin is active or logs in
+  useEffect(() => {
+    const isEditingAdmin = activePage === 'admin' || !!adminUser || (typeof window !== 'undefined' && window.location.pathname.includes('/admin'));
+    if (isEditingAdmin) {
+      syncAllStateToFirebase();
+    }
+  }, [adminUser, activePage]);
+
   // Subscribe to Firebase Realtime Database updates for live multi-device persistence
   useEffect(() => {
     const keys = [
-      { key: 'gs_admin_quotes', setter: setAdminQuotes },
-      { key: 'gs_admin_messages', setter: setAdminMessages },
-      { key: 'gs_admin_services', setter: setAdminServices },
-      { key: 'gs_admin_portfolio', setter: setAdminPortfolio },
-      { key: 'gs_admin_blog', setter: setAdminBlog },
-      { key: 'gs_admin_gallery', setter: setAdminGallery },
-      { key: 'gs_admin_careers', setter: setAdminCareers },
-      { key: 'gs_admin_timeline', setter: setAdminTimeline },
-      { key: 'gs_admin_team', setter: setAdminTeam },
-      { key: 'gs_cms_hero', setter: setCmsHero },
-      { key: 'gs_cms_story', setter: setCmsStory },
-      { key: 'gs_cms_seo', setter: setCmsSeo },
-      { key: 'gs_cms_brand', setter: setCmsBrand },
-      { key: 'gs_cms_sections', setter: setCmsSections }
+      { key: 'gs_admin_quotes', setter: setAdminQuotes, fallback: INITIAL_ADMIN_QUOTES },
+      { key: 'gs_admin_messages', setter: setAdminMessages, fallback: INITIAL_ADMIN_MESSAGES },
+      { key: 'gs_admin_services', setter: setAdminServices, fallback: SERVICES_LIST },
+      { key: 'gs_admin_portfolio', setter: setAdminPortfolio, fallback: PORTFOLIO_ITEMS },
+      { key: 'gs_admin_blog', setter: setAdminBlog, fallback: BLOG_POSTS },
+      { key: 'gs_admin_gallery', setter: setAdminGallery, fallback: GALLERY_ALBUMS },
+      { key: 'gs_admin_careers', setter: setAdminCareers, fallback: CAREER_OPENINGS },
+      { key: 'gs_admin_timeline', setter: setAdminTimeline, fallback: TIMELINE_EVENTS },
+      { key: 'gs_admin_team', setter: setAdminTeam, fallback: TEAM_MEMBERS },
+      { key: 'gs_cms_hero', setter: setCmsHero, fallback: { headline: "Creative Advertising Solutions That Grow Your Business", subtext: "From Logo Design to Branding, Flex Printing, Invitations, Digital Marketing and Creative Advertising.", heroImage: "" } },
+      { key: 'gs_cms_story', setter: setCmsStory, fallback: { headline: "Elevating Brands Through Exceptional Design & Precision Printing", description: "Since 2014, GS Designs has been the silent engine behind iconic corporate identities, retail signages, and mass printing campaigns.", mission: "To empower every business with visual branding that commands attention, instills trust, and drives measurable revenue growth.", vision: "To remain the most trusted full-service advertising agency in the region, bridging physical craftsmanship with modern digital innovation.", whyUs: "Zero compromise on paper GSM, color calibration, and installation safety. 24/7 dedicated support for emergency printing.", bannerImage: "" } },
+      { key: 'gs_cms_seo', setter: setCmsSeo, fallback: { title: "GS Designs | Premium Advertising & Branding Agency", description: "GS Designs - Premium Advertising Agency. Ideas That Elevate Brands." } },
+      { key: 'gs_cms_brand', setter: setCmsBrand, fallback: { phone: BRAND_INFO.phone, email: BRAND_INFO.email, whatsapp: BRAND_INFO.whatsapp, address: `${BRAND_INFO.address}, ${BRAND_INFO.cityState}`, tagline: BRAND_INFO.tagline } },
+      { key: 'gs_cms_sections', setter: setCmsSections, fallback: DEFAULT_CMS_SECTIONS }
     ];
 
-    const unsubscribes = keys.map(({ key, setter }) => {
+    const unsubscribes = keys.map(({ key, setter, fallback }) => {
       return subscribeToFirebase(key, (val) => {
         if (val !== undefined && val !== null) {
           setter(val);
           saveToStorage(key, val);
         }
-      });
+      }, fallback);
     });
 
     const reloadStoredState = () => {
